@@ -1,0 +1,47 @@
+version: '3'
+
+services:
+  backend:
+    image: node:15.14-alpine
+    container_name: back-ms
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./server:/home/app
+      - back-modules:/home/app/node_modules
+    environment:
+      - NODE_ENV=develop
+    depends_on:
+      - db
+    working_dir: /home/app
+    command: [sh, -c, yarn install && yarn dev]
+
+  frontend:
+    image: node:15.14-alpine
+    container_name: front-ms
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./client:/home/app
+      - front-modules:/home/app/node_modules
+    working_dir: /home/app
+    command: [sh, -c, yarn install && yarn start]
+
+  db:
+    image: postgres:13.4-alpine
+    container_name: db-ms
+    ports:
+      - "5433:5432"
+    volumes:
+      - db_persdata:/var/lib/postgrespers
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: messenger
+      TZ: "Asia/Tokyo"
+      POSTGRES_HOST_AUTH_METHOD: trust
+
+volumes:
+  back-modules:
+  front-modules:
+  db_persdata:
